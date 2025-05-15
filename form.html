@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulário de Feedback</title>
+</head>
+<body>
+  <h1>Enviar Feedback</h1>
+  <form id="feedbackForm">
+    <label for="aluno">Nome do Aluno:</label><br>
+    <input type="text" id="aluno" name="aluno" required><br><br>
+
+    <label for="mensagem">Mensagem:</label><br>
+    <textarea id="mensagem" name="mensagem" required></textarea><br><br>
+
+    <label for="nota">Nota (1 a 5):</label><br>
+    <input type="number" id="nota" name="nota" min="1" max="5" required><br><br>
+
+    <label for="turma">Turma ou Disciplina:</label><br>
+    <input type="text" id="turma" name="turma" required><br><br>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <p id="mensagem"></p>
+
+  <script>
+    const form = document.getElementById('feedbackForm');
+    const mensagemRetorno = document.getElementById('mensagem');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const aluno = form.aluno.value.trim();
+      const mensagem = form.mensagem.value.trim();
+      const nota = Number(form.nota.value);
+      const turma = form.turma.value.trim();
+
+      if (!aluno || !mensagem || !turma || isNaN(nota) || nota < 1 || nota > 5) {
+        mensagemRetorno.textContent = "Por favor, preencha todos os campos corretamente (nota entre 1 e 5).";
+        mensagemRetorno.style.color = "red";
+        return;
+      }
+
+      const data = { aluno, mensagem, nota, turma };
+
+      try {
+        const response = await fetch('http://localhost:3000/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        mensagemRetorno.textContent = result.mensagem;
+        mensagemRetorno.style.color = "green";
+        form.reset();
+      } catch (error) {
+        mensagemRetorno.textContent = "Erro ao enviar feedback.";
+        mensagemRetorno.style.color = "red";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+[
+  {
+    "aluno": "gustavo makanha",
+    "mensagem": "4R",
+    "nota": 2,
+    "turma": "2 a",
+    "data": "15/05/2025",
+    "hora": "12:07"
+  },
+  {
+    "aluno": "456",
+    "mensagem": "ERRR",
+    "nota": 4,
+    "turma": "1 e",
+    "data": "15/05/2025",
+    "hora": "12:07"
+  }
+]

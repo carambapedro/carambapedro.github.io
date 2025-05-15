@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Feedbacks Recebidos</title>
+</head>
+<body>
+  <h1>Feedbacks Recebidos</h1>
+
+  <label for="filtroTurma">Filtrar por Turma:</label>
+  <select id="filtroTurma" onchange="carregarFeedbacks()">
+    <option value="">Todas</option>
+  </select>
+
+  <button onclick="limparFeedbacks()">🗑️ Limpar todos os feedbacks</button>
+
+  <ul id="lista-feedbacks"></ul>
+
+  <script>
+    async function carregarFeedbacks() {
+      const filtroSelect = document.getElementById('filtroTurma');
+      const turmaSelecionada = filtroSelect.value.trim().toLowerCase();
+      const lista = document.getElementById('lista-feedbacks');
+      lista.innerHTML = '';
+
+      try {
+        const res = await fetch('http://localhost:3000/feedbacks');
+        const data = await res.json();
+
+        // Preenche o <select> com turmas únicas apenas uma vez
+        if (filtroSelect.options.length <= 1) {
+          const turmasUnicas = [...new Set(data.map(fb => fb.turma).filter(Boolean))];
+          turmasUnicas.sort();
+          turmasUnicas.forEach(turma => {
+            const option = document.createElement('option');
+            option.value = turma;
+            option.textContent = turma;
+            filtroSelect.appendChild(option);
+          });
+        }
+
+        const filtrados = turmaSelecionada
+          ? data.filter(fb => fb.turma && fb.turma.toLowerCase() === turmaSelecionada)
+          : data;
+
+        if (filtrados.length === 0) {
+          lista.innerHTML = '<li>Nenhum feedback encontrado.</li>';
+          return;
+        }
+
+        filtrados.forEach(fb => {
+          const li = document.createElement('li');
+          li.textContent = `[${fb.turma}] ${fb.aluno}: "${fb.mensagem}" — Nota: ${fb.nota}`;
+          lista.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Erro ao buscar feedbacks:', error);
+      }
+    }
+
+    function limparFeedbacks() {
+      if (confirm("Tem certeza que deseja apagar todos os feedbacks?")) {
+        fetch('http://localhost:3000/feedback', {
+          method: 'DELETE'
+        })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.mensagem);
+          location.reload();
+        })
+        .catch(err => console.error('Erro ao apagar feedbacks:', err));
+      }
+    }
+
+    // Carrega os feedbacks ao abrir a página
+    carregarFeedbacks();
+  </script>
+</body>
+</html>

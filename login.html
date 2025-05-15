@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <label for="usuario">Usuário:</label><br>
+    <input type="text" id="usuario" required><br><br>
+
+    <label for="senha">Senha:</label><br>
+    <input type="password" id="senha" required><br><br>
+
+    <button type="submit">Entrar</button>
+  </form>
+
+  <p id="mensagem" style="color: red;"></p>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const mensagem = document.getElementById('mensagem');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const usuario = document.getElementById('usuario').value;
+      const senha = document.getElementById('senha').value;
+
+      try {
+        const response = await fetch('http://localhost:3000/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, senha })
+        });
+
+        const res = await response.json();
+
+        if (response.ok && res.sucesso) {
+  localStorage.setItem('logado', 'true'); // <- ADICIONADO
+  mensagem.style.color = 'green';
+  mensagem.textContent = 'Login realizado com sucesso! Redirecionando...';
+  setTimeout(() => {
+    window.location.href = 'listar.html';
+  }, 1000);
+} else {
+  mensagem.style.color = 'red';
+  mensagem.textContent = res.mensagem || 'Erro no login.';
+}
+
+      } catch (err) {
+        mensagem.style.color = 'red';
+        mensagem.textContent = 'Erro ao conectar com o servidor.';
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
